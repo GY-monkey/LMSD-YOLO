@@ -1,0 +1,90 @@
+# parameters
+nc: 2  # number of classes
+depth_multiple: 1.0  # dont change this otherwise InvertedResidual will be affected
+width_multiple: 1.0  # dont change this otherwise InvertedResidual will be affected
+
+# anchors
+anchors:
+  - [10,13, 16,30, 33,23]  # P3/8
+  - [30,61, 62,45, 59,119]  # P4/16
+  - [116,90, 156,198, 373,326]  # P5/32
+
+# YOLOv5 backbone
+backbone:
+  # MobileNetV3-small
+  # [from, number, module, args]
+
+#  [[-1, 1, Conv3BN, [16, 2]],                         # 0-p1/2   默认的padding为1
+#   [-1, 1, InvertedResidual, [16,  16, 3, 2, 1, 0]],  # 1-p2/4
+#   [-1, 1, InvertedResidual, [16,  72, 3, 2, 0, 0]],  # 2-p3/8
+#   [-1, 1, InvertedResidual, [32,  88, 3, 1, 0, 0]],  # 3-p3/8
+#   [-1, 1, InvertedResidual, [32,  96, 5, 2, 1, 1]],  # 4-p4/16
+#   [-1, 1, Inverted Residual, [64, 240, 5, 1, 1, 1]],  # 5-p4/16
+#   [-1, 1, InvertedResidual, [64, 240, 5, 1, 1, 1]],  # 6-p4/16
+#   [-1, 1, InvertedResidual, [128, 120, 5, 1, 1, 1]],  # 7-p4/16
+#   [-1, 1, InvertedResidual, [128, 144, 5, 1, 1, 1]],  # 8-p4/16
+#   [-1, 1, InvertedResidual, [256, 288, 5, 2, 1, 1]],  # 9-p5/32
+#   [-1, 1, InvertedResidual, [256, 576, 5, 1, 1, 1]],  # 10-p5/32
+#   [-1, 1, InvertedResidual, [512, 576, 5, 1, 1, 1]],  # 11-p5/32
+#  ]
+
+#  [[-1, 1, Conv3BN, [16, 2]],    #[out,  stride]                        # 0-p1/2
+#   [-1, 1, InvertedResidual, [32,  64, 3, 2, 1, 0]],  # 1-p2/4    [out, hidden_dim, kernel_size, stride, use_se, use_hs]
+#   [-1, 1, InvertedResidual, [64, 64, 3, 2, 0, 0]],  # 2-p3/8
+#   [-1, 1, InvertedResidual, [128,  64, 3, 1, 0, 0]],  # 3-p3/8
+##   [-1, 1, InvertedResidual, [64,  128, 5, 2, 1, 1]],  # 4-p4/16
+#   [-1, 1, InvertedResidual, [128, 128, 5, 1, 1, 1]],  # 5-p4/16
+#   [-1, 1, InvertedResidual, [256, 128, 5, 1, 1, 1]],  # 6-p4/16
+##   [-1, 1, InvertedResidual, [128, 256, 5, 1, 1, 1]],  # 7-p4/16
+##   [-1, 1, InvertedResidual, [256, 256, 5, 1, 1, 1]],  # 8-p4/16
+#   [-1, 1, InvertedResidual, [256, 256, 5, 2, 1, 1]],  # 9-p######concat25/32  out_size:
+#   [-1, 1, InvertedResidual, [512, 512, 5, 1, 1, 1]],  # 10-p5/32
+##   [-1, 1, InvertedResidual, [512, 512, 5, 1, 1, 1]],  # 11-p5/32
+#  ]
+
+  [[-1, 1, Conv3BN, [16, 2]],                         # 0-p1/2   默认的padding为1
+   [-1, 1, InvertedResidual, [32,  16, 3, 2, 1, 0]],  # 1-p2/4
+   [-1, 1, InvertedResidual, [128,  72, 3, 2, 0, 0]],  # 2-p3/8
+#   [-1, 1, InvertedResidual, [128,  88, 3, 1, 0, 0]],  # 3-p3/8
+   [-1, 1, InvertedResidual, [64,  96, 5, 2, 1, 1]],  # 4-p4/16
+   [-1, 1, InvertedResidual, [128, 240, 5, 1, 1, 1]],  # 5-p4/16
+#   [-1, 1, InvertedResidual, [256, 240, 5, 1, 1, 1]],  # 6-p4/16
+   [-1, 1, InvertedResidual, [256, 120, 5, 1, 1, 1]],  # 7-p4/16    5
+#   [-1, 1, InvertedResidual, [256, 144, 5, 1, 1, 1]],  # 8-p4/16
+#   [-1, 1, InvertedResidual, [256, 288, 5, 2, 1, 1]],  # 9-p5/32    6
+   [-1, 1, InvertedResidual, [512, 576, 5, 2, 1, 1]],  # 10-p5/32   7
+#   [-1, 1, InvertedResidual, [512, 576, 5, 1, 1, 1]],  # 11-p5/32
+  ]
+
+
+# YOLOv5 head
+# the head is still yolov5s, but depth_multiple and width_multiple are set to 1.0, so Conv and C3 need to be changed
+# depth_multiple of yolov5s: 0.33, i.e., number of C3: 3 -> 1
+# width_multiple of yolov5s: 0.50, i.e., halve the ch_out
+
+
+####bifpn使用的是通道拼接的方式进行计算
+####原则上yolov5s的通道数是一半 但是加入mobilenet 通道书不会减半
+head:
+  ###conv参数的定义[out,k,s]
+  ###c3 的参数定义[out,shortcut] 经过c3不便
+  [[-1, 1, DWConv, [256, 1, 1]],  #######concat3  out为256
+   [-1, 1, nn.Upsample, [None, 2, 'nearest']],
+   [[-1, 5], 1, Concat,[1]],  # cat backbone P4  [256,256] bifpn中真实的输入输出
+   [-1, 1, C3, [256, False]],  # 15   out为256
+
+   [-1, 1, DWConv, [128, 1, 1]],     ######concat2    out为128
+   [-1, 1, nn.Upsample, [None, 2, 'nearest']],
+   [[-1, 2], 1, Concat, [1]],  # cat backbone P3  [128,128] bifpn中真实的输入输出
+   [-1, 1, C3, [128, False]],  # 19 (P3/8-small)    真out为128  15
+
+   [-1, 1, DWConv, [256, 3, 2]],   ##20   #真out为256
+   [[-1, 5], 1, Concat,[1]],  # cat head P4   [256,256] bifpn中真实的输入输出
+   [-1, 1, C3, [256, False]],  # 22 (P4/16-medium) #真out为256
+
+   [-1, 1, DWConv, [512, 3, 2]],
+   [[-1, 6], 1, Concat,[1]],  # cat head P5  [512,512] bifpn中真实的输入输出
+   [-1, 1, C3, [512, False]],  # 25 (P5/32-large)
+
+   [[14, 17, 20], 1, DWASFF_Detect, [nc, anchors]],  # Detect(P3, P4, P5)
+]
