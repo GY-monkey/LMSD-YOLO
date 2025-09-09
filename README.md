@@ -4,6 +4,8 @@ By Yue Guo, Shiqi Chen, Ronghui Zhan *, Wei Wang and Jun Zhang
 
 This repository contains the implementation accompanying our paper LMSD‐YOLO: A Lightweight YOLO Algorithm for Multi‐Scale SAR Ship Detection.
 
+[Paper link] (https://www.mdpi.com/2072-4292/14/19/4801)
+
 If you find it helpful for your research, please consider citing:
 
 ```
